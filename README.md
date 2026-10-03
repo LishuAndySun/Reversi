@@ -1,6 +1,6 @@
 # Reversi (Othello)
 
-A command-line Reversi (Othello) game written in C++, where you play against a simple AI that picks moves based on position weights.
+A command-line Reversi (Othello) game written in C++, where you play against an AI that evaluates moves according to the current board state.
 
 ## Features
 
@@ -8,7 +8,7 @@ A command-line Reversi (Othello) game written in C++, where you play against a s
 - Choose to play Black (`$`, moves first) or White (`*`)
 - Legal move validation: only moves that flip at least one opponent piece are accepted
 - Automatic flipping of sandwiched opponent pieces
-- Simple AI: the computer picks the move with the highest position weight (corners best, edges next)
+- Dynamic AI evaluation: the computer adapts its scoring to the current game phase, position value, and number of pieces flipped
 - A turn is skipped automatically when a player has no valid moves
 - Game ends and scores are tallied when neither player has a valid move
 - Robust input handling: invalid input is rejected with a prompt to retry; EOF (Ctrl+C / Ctrl+Z) exits cleanly
@@ -118,7 +118,7 @@ Reversi/
 
 ## AI Strategy
 
-The computer uses a **position-weight greedy** strategy: it scores every legal move and plays the one with the highest weight. Corners are worth the most (50), edges next (30), while cells adjacent to corners score lowest (5/10) because they let the opponent take a corner.
+The computer uses a **dynamic greedy evaluation** strategy. It scores every legal move using the board position, the number of pieces flipped, and the current game phase. During the opening, position weights guide the choice. During the middle game, flipping more pieces becomes more important. During the endgame, the score also favors moves that increase the computer's occupied squares. Corners receive an additional bonus because they cannot be flipped later.
 
 ## License
 

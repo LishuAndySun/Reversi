@@ -51,7 +51,7 @@ bool isValidMove(int playerColor, int row, int col);
 void placePieceAndFlip(int playerColour, int row, int col);
 bool canFlipInDirection(int playerColor, int row, int col, int dir);
 void computerMakeMove();
-int getPositionScore(int row, int col);
+int DynamicalGetPositionScore(int row, int col);
 void flipPieceInDirection(int playerColour, int row, int col, int directionIndex);
 void announceWinner();
 
@@ -306,7 +306,7 @@ void computerMakeMove()
         {
             if(isValidMove(ComputerPlayer, i, j))
             {
-                int CurrentScore = getPositionScore(i, j);
+                int CurrentScore = DynamicalGetPositionScore(i, j);
                 if(CurrentScore > MaxScore)
                 {
                     MaxScore = CurrentScore;
@@ -322,9 +322,59 @@ void computerMakeMove()
     }
 }
 
-int getPositionScore(int row, int col)
+int DynamicalGetPositionScore(int row, int col)
 {
-    return POSITION_WEIGHTS[row][col];
+    int emptyCellCount = 0;
+    int occupiedCellCount = 0;
+    int flippedPieceCount = 0;
+
+    for(int boardRow = 0; boardRow < BOARD_SIZE; boardRow++)
+    {
+        for(int boardCol = 0; boardCol < BOARD_SIZE; boardCol++)
+        {
+            if(board[boardRow][boardCol] == PIECE_EMPTY)
+            {
+                emptyCellCount++;
+            }
+            else
+            {
+                occupiedCellCount++;
+            }
+        }
+    }
+
+    for(int directionIndex = 0; directionIndex < 8; directionIndex++)
+    {
+        if(canFlipInDirection(ComputerPlayer, row, col, directionIndex))
+        {
+            int nextRow = row + DIR_ROW[directionIndex];
+            int nextCol = col + DIR_COL[directionIndex];
+            while(board[nextRow][nextCol] != ComputerPlayer)
+            {
+                flippedPieceCount++;
+                nextRow += DIR_ROW[directionIndex];
+                nextCol += DIR_COL[directionIndex];
+            }
+        }
+    }
+
+    int dynamicScore = POSITION_WEIGHTS[row][col];
+    if(emptyCellCount <= 20)
+    {
+        dynamicScore += occupiedCellCount + flippedPieceCount * 3;
+    }
+    else if(emptyCellCount <= 44)
+    {
+        dynamicScore += flippedPieceCount * 2;
+    }
+
+    if((row == 0 || row == BOARD_SIZE - 1) &&
+       (col == 0 || col == BOARD_SIZE - 1))
+    {
+        dynamicScore += 100;
+    }
+
+    return dynamicScore;
 }
 
 void placePieceAndFlip(int playerColour, int row, int col)
